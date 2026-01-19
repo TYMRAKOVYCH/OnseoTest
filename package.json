@@ -1,0 +1,31 @@
+{
+  "name": "onseotest",
+  "version": "1.0.0",
+  "description": "Port imitation",
+  "main": "index.js",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TYMRAKOVYCH/OnseoTest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TYMRAKOVYCH/OnseoTest/issues"
+  },
+  "homepage": "https://github.com/TYMRAKOVYCH/OnseoTest#readme",
+  "dependencies": {
+    "pixi.js": "^8.15.0"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.6.6",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js",
+    "bundle": "tsc && npm run build"
+  }
+}
