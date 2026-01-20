@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/TYMRAKOVYCH/OnseoTest#readme",
   "dependencies": {
+    "@tweenjs/tween.js": "^25.0.0",
     "pixi.js": "^8.15.0"
   },
   "devDependencies": {

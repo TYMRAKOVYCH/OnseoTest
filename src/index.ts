@@ -1,5 +1,5 @@
 import {Application, Assets, Container, Graphics, Sprite} from 'pixi.js';
-import {GameContainer} from "./core/GameContainer";
+import {GameController} from "./core/GameController";
 
 (async () => {
     const app = new Application();
@@ -10,11 +10,11 @@ import {GameContainer} from "./core/GameContainer";
 
     document.body.appendChild(app.canvas);
 
-    const gameContainer = new GameContainer(sceneSize);
+    const gameController = new GameController(sceneSize);
 
-    app.stage.addChild(gameContainer);
+    app.stage.addChild(gameController);
 
     app.ticker.add((time) => {
-        gameContainer.update(time);
+        gameController.update(time);
     });
 })();
