@@ -16,4 +16,14 @@ export default {
         filename: 'src/main.js',
         path: path.resolve(__dirname, 'bundle'),
     },
+    module: {
+        rules: [
+            {
+                test: /\.m?js$/,
+                resolve: {
+                    fullySpecified: false
+                },
+            },
+        ],
+    }
 };
