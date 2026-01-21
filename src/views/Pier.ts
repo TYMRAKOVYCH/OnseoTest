@@ -33,7 +33,7 @@ export class Pier extends Container {
     }
 
     public getPierPoint(): { x: number, y: number } {
-        return this._pierPoint ? this._pierPoint : { x: this._width, y: this._height / 2 + this.position.y };
+        return this._pierPoint ? this._pierPoint : {x: this._width, y: this._height / 2 + this.position.y};
     }
 
     public changePierType() {
@@ -43,7 +43,7 @@ export class Pier extends Container {
     public process(): void {
         const pier = this.children[0] as Graphics;
         pier.clear();
-        pier.rect(0, 0, this._width, this._height).fill({ color: this._type === PierType.FULL ? '#1099bb' : '#ffc800' }).stroke({
+        pier.rect(0, 0, this._width, this._height).fill({color: this._type === PierType.FULL ? '#1099bb' : '#ffc800'}).stroke({
             width: 5,
             color: '#ffc800'
         });

@@ -1,46 +1,36 @@
-import {Container, Graphics, type Size, Ticker, TickerPlugin} from "pixi.js";
-import {Tween} from "@tweenjs/tween.js";
-import type {Pier} from "./Pier";
+import {Container, Graphics, type Size} from "pixi.js";
 
-export enum ShipState   {
-    INACTIVE,
-    WAIT_ENTER,
-    IN_PROGRESS,
-    WAIT_EXIT
-}
-
-export enum ShipType  {
+export enum ShipType {
     EMPTY,
     FULL
 }
 
 export class Ship extends Container {
-    private _state: ShipState;
-    private _type : ShipType;
+    private readonly _type: ShipType;
+    private _queuePosX: number = 0;
 
     constructor(sceneSize: Size, type: ShipType) {
         super();
         this._type = type;
-        this._state = ShipState.INACTIVE;
         this.initialize(sceneSize);
     }
 
-    public getType(): ShipType{
+    public getType(): ShipType {
         return this._type;
     }
 
-    public getState(): ShipState{
-        return this._state;
+    public setQueuePosition(x: number) {
+        this._queuePosX = x;
     }
 
-    public setState(state: ShipState): void{
-        this._state = state;
+    public getQueuePosition() {
+        return this._queuePosX;
     }
 
     public process(): void {
         const ship = this.children[0] as Graphics;
         const color = this._type === ShipType.FULL ? '#1099bb' : '#2fff00';
-        ship.fill( { color: color });
+        ship.fill({color: color});
     }
 
     private initialize(sceneSize: Size): void {
@@ -48,7 +38,7 @@ export class Ship extends Container {
         const shipHeight = sceneSize.height / 20;
         const graphics = new Graphics();
         const color = this._type === ShipType.FULL ? '#ff0000' : '#2fff00';
-        const shipRect = graphics.rect(0, 0, shipWeight, shipHeight).fill({ color: color, alpha: this._type }).stroke({
+        const shipRect = graphics.rect(0, 0, shipWeight, shipHeight).fill({color: color, alpha: this._type}).stroke({
             width: 4,
             color: color
         });

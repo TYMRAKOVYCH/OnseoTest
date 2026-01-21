@@ -3,7 +3,7 @@ import {Pier, PierState, PierType} from "./Pier";
 import {ShipType} from "./Ship";
 
 export class Port extends Container {
-    private portEntryCoordinates = {x: 0, y: 0};
+    private _portEntryCoordinates = {x: 0, y: 0};
     private _isLocked = false;
     private _piers: Pier[] = [];
 
@@ -12,26 +12,15 @@ export class Port extends Container {
         this.initialize(sceneSize)
     }
 
-    public getAllAvailablePiers(): Pier[] {
-        return this._piers.filter((pier: Pier) => {
-            const state = pier.getPierState();
-            return state === PierState.AVAILABLE
-        });
-    }
-
     public getAvailablePier(shipType: ShipType): Pier | undefined {
         const pierType = shipType === ShipType.FULL ? PierType.EMPTY : PierType.FULL;
         const availablePorts = this._piers.filter((pier) => {
             return pier.getPierState() === PierState.AVAILABLE && pier.getPierType() === pierType;
         });
         if (availablePorts.length) {
-            return availablePorts[Math.floor((Math.random()*availablePorts.length))];
+            return availablePorts[Math.floor((Math.random() * availablePorts.length))];
         }
         return undefined;
-    }
-
-    public getPiersByState(state: PierState): Pier[] {
-        return this._piers.filter((pier: Pier) => { return pier.getPierState() === state });
     }
 
     public isEntranceLocked(): boolean {
@@ -56,7 +45,7 @@ export class Port extends Container {
     }
 
     public getEntrancePosition(): { x: number, y: number } {
-        return this.portEntryCoordinates;
+        return this._portEntryCoordinates;
     }
 
     private initialize(sceneSize: Size) {
@@ -68,8 +57,8 @@ export class Port extends Container {
         graphics.lineTo(posX, posTopY);
 
         const posBottomY = sceneSize.height / 2 + sceneSize.height / 6;
-        this.portEntryCoordinates.x = posX;
-        this.portEntryCoordinates.y = posTopY + (posBottomY - posTopY) / 2;
+        this._portEntryCoordinates.x = posX;
+        this._portEntryCoordinates.y = posTopY + (posBottomY - posTopY) / 2;
 
         graphics.moveTo(posX, sceneSize.height);
         graphics.lineTo(posX, posBottomY);
