@@ -4,7 +4,7 @@ import {GameController} from "./core/GameController";
 (async () => {
     const app = new Application();
 
-    const sceneSize = { width: 1000, height: 500 };
+    const sceneSize = { width: 800, height: 500 };
 
     await app.init({background: '#1099bb', width: sceneSize.width, height: sceneSize.height, antialias: true});
 

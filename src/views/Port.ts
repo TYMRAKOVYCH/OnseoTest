@@ -1,14 +1,62 @@
 import {Container, Graphics, type Size} from "pixi.js";
-import {Pier} from "./Pier";
+import {Pier, PierState, PierType} from "./Pier";
+import {ShipType} from "./Ship";
 
 export class Port extends Container {
-    private portEntryCoordinates = { x: 0, y: 0 };
+    private portEntryCoordinates = {x: 0, y: 0};
     private _isLocked = false;
     private _piers: Pier[] = [];
 
     constructor(sceneSize: Size) {
         super();
         this.initialize(sceneSize)
+    }
+
+    public getAllAvailablePiers(): Pier[] {
+        return this._piers.filter((pier: Pier) => {
+            const state = pier.getPierState();
+            return state === PierState.AVAILABLE
+        });
+    }
+
+    public getAvailablePier(shipType: ShipType): Pier | undefined {
+        const pierType = shipType === ShipType.FULL ? PierType.EMPTY : PierType.FULL;
+        const availablePorts = this._piers.filter((pier) => {
+            return pier.getPierState() === PierState.AVAILABLE && pier.getPierType() === pierType;
+        });
+        if (availablePorts.length) {
+            return availablePorts[Math.floor((Math.random()*availablePorts.length))];
+        }
+        return undefined;
+    }
+
+    public getPiersByState(state: PierState): Pier[] {
+        return this._piers.filter((pier: Pier) => { return pier.getPierState() === state });
+    }
+
+    public isEntranceLocked(): boolean {
+        return this._isLocked;
+    }
+
+    public lockEntrance(): void {
+        this._isLocked = true;
+    }
+
+    public lockPier(pier: Pier) {
+        pier.setPierState(PierState.IN_PROGRESS)
+    }
+
+    public ulockPier(pier: Pier) {
+        pier.setPierState(PierState.AVAILABLE);
+        pier.changePierType();
+    }
+
+    public unlockEntrance(): void {
+        this._isLocked = false;
+    }
+
+    public getEntrancePosition(): { x: number, y: number } {
+        return this.portEntryCoordinates;
     }
 
     private initialize(sceneSize: Size) {
@@ -25,25 +73,20 @@ export class Port extends Container {
 
         graphics.moveTo(posX, sceneSize.height);
         graphics.lineTo(posX, posBottomY);
-
         graphics.stroke({
             color: '#ffc800',
             alpha: 1,
             width: 10
         });
-
         this.addChild(graphics);
 
         const pierHeight = sceneSize.height / 5;
         const pierWidth = sceneSize.height / 10;
         let pierY = pierWidth / 3;
 
-        for (let i = 0; i < 4; i++ ) {
-            const pierRect = graphics.rect(0, pierY, pierWidth, pierHeight).fill({ color: '#ffc800', alpha: 0 }).stroke({             // Applies a stroke
-                width: 5,
-                color: '#ffc800'
-            });
-            const pier = new Pier(i, pierRect);
+        for (let i = 0; i < 4; i++) {
+            const pier = new Pier(pierWidth, pierHeight);
+            pier.position.y = pierY;
             this._piers.push(pier)
             this.addChild(pier);
             pierY += pierHeight + pierWidth / 3;
