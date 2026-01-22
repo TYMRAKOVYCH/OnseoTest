@@ -22,12 +22,13 @@
   "devDependencies": {
     "eslint-config-prettier": "^10.1.8",
     "html-webpack-plugin": "^5.6.6",
+    "live-server": "^1.2.2",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js",
-    "bundle": "tsc && npm run build"
+    "bundle": "tsc && webpack --config webpack.config.js",
+    "start": "npm run bundle && live-server ./bundle"
   }
 }

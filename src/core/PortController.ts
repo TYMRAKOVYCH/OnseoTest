@@ -4,7 +4,6 @@ import {Ship, ShipType} from "../views/Ship";
 import {Group, Tween} from "@tweenjs/tween.js";
 import {type Pier} from "../views/Pier";
 
-
 export class PortController extends Container {
     private readonly _sceneSize: Size;
     private _port!: Port;
@@ -61,7 +60,7 @@ export class PortController extends Container {
             const reorderTween: Tween[] = [];
             for (let i = 0; i < queue.length; i++) {
                 const currentShip = queue[i]!;
-                const newPosition = i === 0 ? this._sceneSize.width / 2 : queue[i - 1]!.getQueuePosition() + 50;
+                const newPosition = i === 0 ? this._sceneSize.width / 2 : queue[i - 1]!.getQueuePosition() + (currentShip.width + currentShip.width / 5);
                 currentShip.setQueuePosition(newPosition);
                 const tween = new Tween(currentShip.position).to({x: newPosition}, 1000).start()
                 reorderTween.push(tween);
@@ -153,7 +152,7 @@ export class PortController extends Container {
     private getQueuePosition(currentShip: Ship): number {
         const queue = this.getQueueByShipType(currentShip);
         if (queue.length > 0) {
-            return queue[queue.length - 1]!.getQueuePosition() + 50;
+            return queue[queue.length - 1]!.getQueuePosition() + (currentShip.width + currentShip.width / 5);
         }
         return this._sceneSize.width / 2;
     }

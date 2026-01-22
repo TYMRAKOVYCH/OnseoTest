@@ -49,8 +49,22 @@ export class Port extends Container {
     }
 
     private initialize(sceneSize: Size) {
-        const graphics = new Graphics();
+        this.initPortEntrance(sceneSize);
 
+        const pierHeight = sceneSize.height / 5;
+        const pierWidth = sceneSize.height / 10;
+        let pierY = pierWidth / 3;
+        for (let i = 0; i < 4; i++) {
+            const pier = new Pier(pierWidth, pierHeight);
+            pier.position.y = pierY;
+            this._piers.push(pier)
+            this.addChild(pier);
+            pierY += pierHeight + pierWidth / 3;
+        }
+    }
+
+    private initPortEntrance(sceneSize: Size): void {
+        const graphics = new Graphics();
         const posX = sceneSize.width / 3;
         const posTopY = sceneSize.height / 2 - sceneSize.height / 6;
         graphics.moveTo(posX, 0);
@@ -68,17 +82,5 @@ export class Port extends Container {
             width: 10
         });
         this.addChild(graphics);
-
-        const pierHeight = sceneSize.height / 5;
-        const pierWidth = sceneSize.height / 10;
-        let pierY = pierWidth / 3;
-
-        for (let i = 0; i < 4; i++) {
-            const pier = new Pier(pierWidth, pierHeight);
-            pier.position.y = pierY;
-            this._piers.push(pier)
-            this.addChild(pier);
-            pierY += pierHeight + pierWidth / 3;
-        }
     }
 }
