@@ -48,7 +48,7 @@ export class Port extends Container {
         return this._portEntryCoordinates;
     }
 
-    private initialize(sceneSize: Size) {
+    private initialize(sceneSize: Size): void {
         this.initPortEntrance(sceneSize);
 
         const pierHeight = sceneSize.height / 5;

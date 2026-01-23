@@ -1,4 +1,4 @@
-import {Container, Size} from "pixi.js";
+import {Container, Size, Ticker} from "pixi.js";
 import {Port} from "../views/Port";
 import {Group, Tween} from "@tweenjs/tween.js";
 import {Pier} from "../views/Pier";
@@ -13,6 +13,7 @@ export class PortController extends Container {
     private _enterPortFullShipsQueue: IShip[] = [];
     private _exitPortShipsQueue: { ship: IShip, pier: Pier }[] = [];
     private _tween: Group;
+    private _timerValue: number = 0;
 
     constructor(sceneSize: Size) {
         super();
@@ -21,8 +22,13 @@ export class PortController extends Container {
         this.initScene(sceneSize);
     }
 
-    public update(): void {
+    public update(ticker: Ticker): void {
         this.processShipQueue();
+        this._timerValue += ticker.elapsedMS;
+        if(this._timerValue >= 8000) {
+            this._timerValue = 0;
+            this.createAndProcessShips();
+        }
         this._tween.update();
     }
 
@@ -45,7 +51,7 @@ export class PortController extends Container {
                         const ship = queue.shift()!;
                         this.processShip(ship, availablePier);
                         this.reorderShipQueue(queue);
-                        break;
+                        return;
                     }
                 }
             }
@@ -82,14 +88,7 @@ export class PortController extends Container {
     private initScene(sceneSize: Size): void {
         this._port = new Port(sceneSize);
         this.addChild(this._port);
-        this.startGenerateShips();
-    }
-
-    private startGenerateShips(): void {
         this.createAndProcessShips();
-        setInterval(() => {
-            this.createAndProcessShips();
-        }, 8000);
     }
 
     private createAndProcessShips(): void {
@@ -160,11 +159,18 @@ export class PortController extends Container {
     }
 
     private processCargo(ship: IShip, pier: Pier): void {
-        setTimeout(() => {
-            ship.process();
-            pier.process();
-            this.leavePort(ship, pier);
-        }, 5000);
+        let timerValue = 0;
+        const updateTickerFunc = (timer: Ticker) => {
+            timerValue += timer.elapsedMS;
+            if (timerValue >= 5000) {
+                timerValue = 0;
+                ship.process();
+                pier.process();
+                this.leavePort(ship, pier);
+                Ticker.shared.remove(updateTickerFunc);
+            }
+        }
+        Ticker.shared.add(updateTickerFunc);
     }
 
     private leavePort(ship: IShip, pier: Pier): void {

@@ -14,7 +14,7 @@ import {PortController} from "./core/PortController";
 
     app.stage.addChild(gameController);
 
-    app.ticker.add(() => {
-        gameController.update();
+    app.ticker.add((ticker) => {
+        gameController.update(ticker);
     });
 })();

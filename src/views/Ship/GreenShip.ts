@@ -30,7 +30,7 @@ export class GreenShip extends Container implements IShip {
     }
 
     public dispose(): void {
-        this.destroy();
+        this.destroy(true);
     }
 
     public process(): void {
