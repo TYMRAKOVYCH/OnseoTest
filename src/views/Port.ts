@@ -1,6 +1,6 @@
 import {Container, Graphics, type Size} from "pixi.js";
 import {Pier, PierState, PierType} from "./Pier";
-import {ShipType} from "./Ship";
+import {ShipType} from "./Ship/IShip";
 
 export class Port extends Container {
     private _portEntryCoordinates = {x: 0, y: 0};

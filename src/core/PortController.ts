@@ -1,15 +1,17 @@
-import {Container, type Size} from "pixi.js";
+import {Container, Size} from "pixi.js";
 import {Port} from "../views/Port";
-import {Ship, ShipType} from "../views/Ship";
 import {Group, Tween} from "@tweenjs/tween.js";
-import {type Pier} from "../views/Pier";
+import {Pier} from "../views/Pier";
+import {IShip, ShipType} from "../views/Ship/IShip";
+import {RedShip} from "../views/Ship/RedShip";
+import {GreenShip} from "../views/Ship/GreenShip";
 
 export class PortController extends Container {
     private readonly _sceneSize: Size;
     private _port!: Port;
-    private _enterPortEmptyShipsQueue: Ship[] = [];
-    private _enterPortFullShipsQueue: Ship[] = [];
-    private _exitPortShipsQueue: { ship: Ship, pier: Pier }[] = [];
+    private _enterPortEmptyShipsQueue: IShip[] = [];
+    private _enterPortFullShipsQueue: IShip[] = [];
+    private _exitPortShipsQueue: { ship: IShip, pier: Pier }[] = [];
     private _tween: Group;
 
     constructor(sceneSize: Size) {
@@ -19,12 +21,12 @@ export class PortController extends Container {
         this.initScene(sceneSize);
     }
 
-    public update() {
+    public update(): void {
         this.processShipQueue();
         this._tween.update();
     }
 
-    private processShipQueue() {
+    private processShipQueue(): void {
         if (!this._port.isEntranceLocked()) {
 
             const entryQueues = [
@@ -55,23 +57,24 @@ export class PortController extends Container {
         }
     }
 
-    private reorderShipQueue(queue: Ship[]) {
+    private reorderShipQueue(queue: IShip[]): void {
         if (queue.length > 0) {
             const reorderTween: Tween[] = [];
             for (let i = 0; i < queue.length; i++) {
                 const currentShip = queue[i]!;
-                const newPosition = i === 0 ? this._sceneSize.width / 2 : queue[i - 1]!.getQueuePosition() + (currentShip.width + currentShip.width / 5);
+                const newPosition = i === 0 ? this._sceneSize.width / 2 : queue[i - 1]!.getQueuePosition() + (currentShip.getWidth() + currentShip.getWidth() / 5);
                 currentShip.setQueuePosition(newPosition);
-                const tween = new Tween(currentShip.position).to({x: newPosition}, 1000).start()
+                const tween = new Tween(currentShip.getCurrentPosition()).to({x: newPosition}, 1000).start()
                 reorderTween.push(tween);
             }
             this._tween.add(...reorderTween);
         }
     }
 
-    private updateShipQueue(ship: Ship) {
+    private updateShipQueue(ship: IShip): void {
         const positionX = this.getQueuePosition(ship);
-        const toPark = new Tween(ship.position)
+        ship.setQueuePosition(positionX);
+        const toPark = new Tween(ship.getCurrentPosition())
             .to({x: positionX}, 1000).start();
         this._tween.add(toPark);
     }
@@ -90,13 +93,12 @@ export class PortController extends Container {
     }
 
     private createAndProcessShips(): void {
-        const type = Math.random() > 0.5 ? ShipType.FULL : ShipType.EMPTY;
-        const ship = new Ship(this._sceneSize, type);
+        const ship = Math.random() > 0.5 ? new RedShip(this._sceneSize) : new GreenShip(this._sceneSize);
         this.addChild(ship);
         this.processNewShip(ship);
     }
 
-    private isQueueEmpty(ship: Ship): boolean {
+    private isQueueEmpty(ship: IShip): boolean {
         const queue = this.getQueueByShipType(ship);
         if (queue.length) {
             return !queue.find((queueShip) => queueShip.getType() === ship.getType());
@@ -104,11 +106,11 @@ export class PortController extends Container {
         return true;
     }
 
-    private getQueueByShipType(ship: Ship): Ship[] {
+    private getQueueByShipType(ship: IShip): IShip[] {
         return ship.getType() === ShipType.FULL ? this._enterPortFullShipsQueue : this._enterPortEmptyShipsQueue;
     }
 
-    private processNewShip(ship: Ship): void {
+    private processNewShip(ship: IShip): void {
         if (!this._port.isEntranceLocked() && this.isQueueEmpty(ship)) {
             const availablePier = this._port.getAvailablePier(ship.getType());
             if (availablePier) {
@@ -119,7 +121,7 @@ export class PortController extends Container {
         const positionX = this.getQueuePosition(ship);
         const queue = this.getQueueByShipType(ship);
         ship.setQueuePosition(positionX);
-        const toPark = new Tween(ship.position)
+        const toPark = new Tween(ship.getCurrentPosition())
             .to({x: positionX}, 2000).onComplete(() => {
                 this.updateShipQueue(ship);
                 queue.push(ship);
@@ -127,17 +129,17 @@ export class PortController extends Container {
         this._tween.add(toPark);
     }
 
-    private processShip(ship: Ship, pier: Pier): void {
+    private processShip(ship: IShip, pier: Pier): void {
         this._port.lockEntrance();
         this._port.lockPier(pier);
         const portEntrancePosition = this._port.getEntrancePosition();
         const pierPoint = pier.getPierPoint();
-        const toPierTween = new Tween(ship.position)
+        const toPierTween = new Tween(ship.getCurrentPosition())
             .to({x: pierPoint.x, y: pierPoint.y}, 3000)
             .onComplete(() => {
                 this.processCargo(ship, pier);
             });
-        const toEntranceTween = new Tween(ship.position)
+        const toEntranceTween = new Tween(ship.getCurrentPosition())
             .to(portEntrancePosition, 3000)
             .onComplete(() => {
                 this._port.unlockEntrance();
@@ -149,15 +151,15 @@ export class PortController extends Container {
         this._tween.add(toEntranceTween, toPierTween);
     }
 
-    private getQueuePosition(currentShip: Ship): number {
+    private getQueuePosition(currentShip: IShip): number {
         const queue = this.getQueueByShipType(currentShip);
         if (queue.length > 0) {
-            return queue[queue.length - 1]!.getQueuePosition() + (currentShip.width + currentShip.width / 5);
+            return queue[queue.length - 1]!.getQueuePosition() + (currentShip.getWidth() + currentShip.getWidth() / 5);
         }
         return this._sceneSize.width / 2;
     }
 
-    private processCargo(ship: Ship, pier: Pier): void {
+    private processCargo(ship: IShip, pier: Pier): void {
         setTimeout(() => {
             ship.process();
             pier.process();
@@ -165,14 +167,14 @@ export class PortController extends Container {
         }, 5000);
     }
 
-    private leavePort(ship: Ship, pier: Pier): void {
+    private leavePort(ship: IShip, pier: Pier): void {
         if (!this._port.isEntranceLocked()) {
             this._port.lockEntrance();
             const portEntrancePosition = this._port.getEntrancePosition();
-            const leaveTween = new Tween(ship.position)
+            const leaveTween = new Tween(ship.getCurrentPosition())
                 .to({x: this._sceneSize.width}, 3000)
-                .onComplete(() => ship.destroy());
-            const toEntranceTween = new Tween(ship.position)
+                .onComplete(() => ship.dispose());
+            const toEntranceTween = new Tween(ship.getCurrentPosition())
                 .to(portEntrancePosition, 3000)
                 .onComplete(() => {
                     this._port.unlockEntrance();
